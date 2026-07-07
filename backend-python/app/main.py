@@ -1,16 +1,16 @@
 from fastapi import FastAPI
-from sqlalchemy import text
-from .database import engine
+
+from app.database import Base, engine
+import app.models
 
 app = FastAPI()
 
+
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
+
+
 @app.get("/")
 def root():
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT version();"))
-        version = result.scalar()
-
-    return {
-        "message": "FastAPI is connected!",
-        "postgres": version
-    }
+    return {"message": "Hello World"}
