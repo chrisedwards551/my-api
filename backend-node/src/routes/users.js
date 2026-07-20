@@ -1,35 +1,15 @@
 const express = require('express');
+const { getUsers } = require('../services/userService');
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const controller = new AbortController();
-
-    const timeout = setTimeout(() => {
-        controller.abort();
-    }, 5000);
-
     try {
-        const response = await fetch(`${process.env.FASTAPI_URL}/users/`, {
-            signal: controller.signal
-        });
-
-        clearTimeout(timeout);
-
-        if (!response.ok) {
-            return res.status(response.status).json({
-                message: 'FastAPI service returned an error',
-                status: response.status
-            });
-        }
-
-        const users = await response.json();
+        const users = await getUsers();
 
         res.json(users);
 
     } catch (error) {
-        clearTimeout(timeout);
-
         console.error(error);
 
         if (error.name === 'AbortError') {
