@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     }, 5000);
 
     try {
-        const response = await fetch('http://localhost:8000/users/', {
+        const response = await fetch(`${process.env.FASTAPI_URL}/users/`, {
             signal: controller.signal
         });
 

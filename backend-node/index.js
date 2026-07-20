@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const pool = require('./src/config/database');
 const usersRouter = require('./src/routes/users');
