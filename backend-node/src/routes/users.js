@@ -1,21 +1,24 @@
 const express = require('express');
-const pool = require('../config/database');
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query(
-            'SELECT id, username, email, created_at FROM users'
-        );
+        const response = await fetch('http://localhost:8000/users/');
 
-        res.json(result.rows);
+        if (!response.ok) {
+            throw new Error(`FastAPI returned ${response.status}`);
+        }
+
+        const users = await response.json();
+
+        res.json(users);
 
     } catch (error) {
         console.error(error);
 
         res.status(500).json({
-            message: 'Failed to retrieve users',
+            message: 'Failed to retrieve users from FastAPI',
             error: error.message
         });
     }
