@@ -68,7 +68,8 @@ def login(
     access_token = create_access_token(
         {
             "sub": user.email,
-            "user_id": user.id
+            "user_id": user.id,
+            "role": user.role
         }
     )
 
@@ -76,7 +77,8 @@ def login(
     refresh_token = create_refresh_token(
         {
             "sub": user.email,
-            "user_id": user.id
+            "user_id": user.id,
+            "role": user.role
         }
     )
 
@@ -136,6 +138,7 @@ def refresh_token(
 
     user_email = payload.get("sub")
     user_id = payload.get("user_id")
+    user_role = payload.get("role")
 
 
     revoke_refresh_token(
@@ -147,7 +150,8 @@ def refresh_token(
     new_access_token = create_access_token(
         {
             "sub": user_email,
-            "user_id": user_id
+            "user_id": user_id,
+            "role": user_role
         }
     )
 
@@ -155,7 +159,8 @@ def refresh_token(
     new_refresh_token = create_refresh_token(
         {
             "sub": user_email,
-            "user_id": user_id
+            "user_id": user_id,
+            "role": user_role
         }
     )
 

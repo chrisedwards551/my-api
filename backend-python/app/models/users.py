@@ -9,12 +9,10 @@ from app.database import Base
 class User(Base):
     __tablename__ = "users"
 
-
     id: Mapped[int] = mapped_column(
         primary_key=True,
         index=True
     )
-
 
     username: Mapped[str] = mapped_column(
         String,
@@ -22,18 +20,21 @@ class User(Base):
         index=True
     )
 
-
     email: Mapped[str] = mapped_column(
         String,
         unique=True,
         index=True
     )
 
+    role: Mapped[str] = mapped_column(
+        String,
+        default="user",
+        nullable=False
+    )
 
     password_hash: Mapped[str] = mapped_column(
         String
     )
-
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
