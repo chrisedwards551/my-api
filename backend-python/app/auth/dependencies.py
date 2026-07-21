@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.auth.jwt import decode_access_token
+from app.auth.jwt import decode_token
 from app.crud.user import get_user_by_email
 
 
@@ -17,7 +17,7 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
 
-    payload = decode_access_token(token)
+    payload = decode_token(token)
 
     if payload is None:
         raise HTTPException(

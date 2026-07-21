@@ -13,9 +13,13 @@ import os
 
 load_dotenv()
 
+database_url = os.getenv("DATABASE_URL")
+
+database_url = database_url.replace("%", "%%")
+
 config.set_main_option(
     "sqlalchemy.url",
-    os.getenv("DATABASE_URL")
+    database_url
 )
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

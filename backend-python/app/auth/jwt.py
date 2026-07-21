@@ -25,11 +25,11 @@ def create_access_token(data: dict):
     )
 
     to_encode.update(
-    {
-        "exp": expire,
-        "iat": datetime.now(timezone.utc)
-    }
-)
+        {
+            "exp": expire,
+            "iat": datetime.now(timezone.utc)
+        }
+    )
 
     encoded_jwt = jwt.encode(
         to_encode,
@@ -40,7 +40,30 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-def decode_access_token(token: str):
+def create_refresh_token(data: dict):
+    to_encode = data.copy()
+
+    expire = datetime.now(timezone.utc) + timedelta(
+        days=7
+    )
+
+    to_encode.update(
+        {
+            "exp": expire,
+            "iat": datetime.now(timezone.utc)
+        }
+    )
+
+    encoded_jwt = jwt.encode(
+        to_encode,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+    return encoded_jwt
+
+
+def decode_token(token: str):
     try:
         payload = jwt.decode(
             token,
