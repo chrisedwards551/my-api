@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
+from jose.exceptions import JWTError, ExpiredSignatureError
 
 from dotenv import load_dotenv
 import os
@@ -24,10 +25,11 @@ def create_access_token(data: dict):
     )
 
     to_encode.update(
-        {
-            "exp": expire
-        }
-    )
+    {
+        "exp": expire,
+        "iat": datetime.now(timezone.utc)
+    }
+)
 
     encoded_jwt = jwt.encode(
         to_encode,
@@ -48,5 +50,8 @@ def decode_access_token(token: str):
 
         return payload
 
-    except Exception:
+    except ExpiredSignatureError:
+        return None
+
+    except JWTError:
         return None

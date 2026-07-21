@@ -44,10 +44,11 @@ def login(
 
 
     token = create_access_token(
-        {
-            "sub": user.email
-        }
-    )
+    {
+        "sub": user.email,
+        "user_id": user.id
+    }
+)
 
 
     return {
