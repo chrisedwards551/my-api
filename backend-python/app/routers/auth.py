@@ -20,6 +20,8 @@ from app.schemas.auth import (
 
 from app.schemas.user import UserResponse
 
+from app.models.users import User
+
 from app.auth.security import verify_password
 
 from app.auth.jwt import (
@@ -48,6 +50,7 @@ def login(
         user_credentials.email
     )
 
+
     if not user:
         raise HTTPException(
             status_code=401,
@@ -55,14 +58,51 @@ def login(
         )
 
 
+    # Check if account is temporarily locked
+    if (
+        user.locked_until
+        and user.locked_until > datetime.now(timezone.utc)
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Account temporarily locked. Try again later."
+        )
+
+
+    # Verify password
     if not verify_password(
         user_credentials.password,
         user.password_hash
     ):
+
+        user.failed_login_attempts += 1
+
+
+        # Lock account after 5 failed attempts
+        if user.failed_login_attempts >= 5:
+
+            user.locked_until = (
+                datetime.now(timezone.utc)
+                + timedelta(minutes=15)
+            )
+
+            user.failed_login_attempts = 0
+
+
+        db.commit()
+
+
         raise HTTPException(
             status_code=401,
             detail="Invalid credentials"
         )
+
+
+    # Successful login resets security counters
+    user.failed_login_attempts = 0
+    user.locked_until = None
+
+    db.commit()
 
 
     access_token = create_access_token(
@@ -141,12 +181,14 @@ def refresh_token(
     user_role = payload.get("role")
 
 
+    # Revoke old refresh token
     revoke_refresh_token(
         db,
         request.refresh_token
     )
 
 
+    # Create new tokens
     new_access_token = create_access_token(
         {
             "sub": user_email,
@@ -182,6 +224,6 @@ def refresh_token(
 
 @router.get("/me", response_model=UserResponse)
 def read_current_user(
-    current_user = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     return current_user
