@@ -10,13 +10,15 @@ from app.crud.user import (
     get_users,
     get_user,
     update_user,
-    delete_user
+    delete_user,
+    update_user_role
 )
 
 from app.schemas.user import (
     UserCreate,
     UserResponse,
-    UserUpdate
+    UserUpdate,
+    UserRoleUpdate
 )
 
 from app.models.users import User
@@ -103,6 +105,38 @@ def update_existing_user(
         db,
         user_id,
         user
+    )
+
+    if updated_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    return updated_user
+
+
+# Phase 15.7 — User Role Management
+# Admin-only role update endpoint
+@router.patch("/{user_id}/role", response_model=UserResponse)
+def update_user_role_endpoint(
+    user_id: int,
+    role_update: UserRoleUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    # Only admins can change roles
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required."
+        )
+
+    updated_user = update_user_role(
+        db,
+        user_id,
+        role_update.role
     )
 
     if updated_user is None:

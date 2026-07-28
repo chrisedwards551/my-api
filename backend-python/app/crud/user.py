@@ -32,7 +32,11 @@ def get_user_by_email(db: Session, email: str):
 
 
 def update_user(db: Session, user_id: int, user_data: UserUpdate):
-    db_user = db.query(User).filter(User.id == user_id).first()
+    db_user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
 
     if db_user:
         if user_data.username:
@@ -42,7 +46,9 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate):
             db_user.email = user_data.email
 
         if user_data.password:
-            db_user.password_hash = hash_password(user_data.password)
+            db_user.password_hash = hash_password(
+                user_data.password
+            )
 
         db.commit()
         db.refresh(db_user)
@@ -51,10 +57,32 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate):
 
 
 def delete_user(db: Session, user_id: int):
-    db_user = db.query(User).filter(User.id == user_id).first()
+    db_user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
 
     if db_user:
         db.delete(db_user)
         db.commit()
+
+    return db_user
+
+
+def update_user_role(db: Session, user_id: int, role: str):
+    db_user = (
+        db.query(User)
+        .filter(User.id == user_id)
+        .first()
+    )
+
+    if not db_user:
+        return None
+
+    db_user.role = role
+
+    db.commit()
+    db.refresh(db_user)
 
     return db_user

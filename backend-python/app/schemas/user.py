@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr
 
@@ -26,3 +27,7 @@ class UserUpdate(BaseModel):
     username: str | None = None
     email: EmailStr | None = None
     password: str | None = None
+
+
+class UserRoleUpdate(BaseModel):
+    role: Literal["user", "manager", "admin"]

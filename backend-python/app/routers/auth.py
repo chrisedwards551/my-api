@@ -19,6 +19,7 @@ from app.schemas.auth import (
 )
 
 from app.schemas.user import UserResponse
+from app.schemas.errors import ErrorResponse
 
 from app.models.users import User
 
@@ -39,7 +40,14 @@ router = APIRouter(
 )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    responses={
+        401: {"model": ErrorResponse},
+        403: {"model": ErrorResponse}
+    }
+)
 def login(
     user_credentials: LoginRequest,
     db: Session = Depends(get_db)
@@ -54,7 +62,11 @@ def login(
     if not user:
         raise HTTPException(
             status_code=401,
-            detail="Invalid credentials"
+            detail={
+                "error": "invalid_credentials",
+                "message": "Invalid email or password",
+                "status_code": 401
+            }
         )
 
 
@@ -65,7 +77,11 @@ def login(
     ):
         raise HTTPException(
             status_code=403,
-            detail="Account temporarily locked. Try again later."
+            detail={
+                "error": "account_locked",
+                "message": "Account temporarily unavailable",
+                "status_code": 403
+            }
         )
 
 
@@ -94,7 +110,11 @@ def login(
 
         raise HTTPException(
             status_code=401,
-            detail="Invalid credentials"
+            detail={
+                "error": "invalid_credentials",
+                "message": "Invalid email or password",
+                "status_code": 401
+            }
         )
 
 
@@ -138,7 +158,10 @@ def login(
     }
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post(
+    "/refresh",
+    response_model=TokenResponse
+)
 def refresh_token(
     request: RefreshRequest,
     db: Session = Depends(get_db)
@@ -222,7 +245,10 @@ def refresh_token(
     }
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get(
+    "/me",
+    response_model=UserResponse
+)
 def read_current_user(
     current_user: User = Depends(get_current_user)
 ):
