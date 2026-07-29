@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from app.routers import users
 from app.routers import auth
 from app.routers import admin
+from app.routers import permissions
 
 
 app = FastAPI(
@@ -45,6 +46,10 @@ app.include_router(
 
 app.include_router(
     admin.router
+)
+
+app.include_router(
+    permissions.router
 )
 
 

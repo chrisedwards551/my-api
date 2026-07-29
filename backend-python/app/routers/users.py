@@ -11,14 +11,15 @@ from app.crud.user import (
     get_user,
     update_user,
     delete_user,
-    update_user_role
+    update_user_role,
+    count_admin_users,
 )
 
 from app.schemas.user import (
     UserCreate,
     UserResponse,
     UserUpdate,
-    UserRoleUpdate
+    UserRoleUpdate,
 )
 
 from app.models.users import User
@@ -117,7 +118,6 @@ def update_existing_user(
 
 
 # Phase 15.7 — User Role Management
-# Admin-only role update endpoint
 @router.patch("/{user_id}/role", response_model=UserResponse)
 def update_user_role_endpoint(
     user_id: int,
@@ -133,17 +133,44 @@ def update_user_role_endpoint(
             detail="Admin privileges required."
         )
 
-    updated_user = update_user_role(
+    target_user = get_user(
         db,
-        user_id,
-        role_update.role
+        user_id
     )
 
-    if updated_user is None:
+    if target_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+
+    # Prevent an admin from removing their own admin role
+    if (
+        current_user.id == user_id
+        and current_user.role == "admin"
+        and role_update.role != "admin"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot remove your own admin privileges."
+        )
+
+    # Prevent removing the last remaining admin
+    if (
+        target_user.role == "admin"
+        and role_update.role != "admin"
+        and count_admin_users(db) <= 1
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot remove the last admin account."
+        )
+
+    updated_user = update_user_role(
+        db,
+        user_id,
+        role_update
+    )
 
     return updated_user
 

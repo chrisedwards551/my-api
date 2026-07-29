@@ -1,15 +1,19 @@
 from sqlalchemy.orm import Session
 
 from app.models.users import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserUpdate, UserRoleUpdate
+
 from app.auth.security import hash_password
 
 
 def create_user(db: Session, user: UserCreate):
+    hashed_password = hash_password(user.password)
+
     db_user = User(
         username=user.username,
         email=user.email,
-        password_hash=hash_password(user.password),
+        password_hash=hashed_password,
+        role="user",
     )
 
     db.add(db_user)
@@ -24,65 +28,85 @@ def get_users(db: Session):
 
 
 def get_user(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
-
-
-def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
-
-
-def update_user(db: Session, user_id: int, user_data: UserUpdate):
-    db_user = (
+    return (
         db.query(User)
         .filter(User.id == user_id)
         .first()
     )
 
-    if db_user:
-        if user_data.username:
-            db_user.username = user_data.username
 
-        if user_data.email:
-            db_user.email = user_data.email
-
-        if user_data.password:
-            db_user.password_hash = hash_password(
-                user_data.password
-            )
-
-        db.commit()
-        db.refresh(db_user)
-
-    return db_user
-
-
-def delete_user(db: Session, user_id: int):
-    db_user = (
+def get_user_by_email(
+    db: Session,
+    email: str,
+):
+    return (
         db.query(User)
-        .filter(User.id == user_id)
+        .filter(User.email == email)
         .first()
     )
 
-    if db_user:
-        db.delete(db_user)
-        db.commit()
 
-    return db_user
+def update_user(
+    db: Session,
+    user_id: int,
+    user: UserUpdate,
+):
+    db_user = get_user(db, user_id)
 
-
-def update_user_role(db: Session, user_id: int, role: str):
-    db_user = (
-        db.query(User)
-        .filter(User.id == user_id)
-        .first()
-    )
-
-    if not db_user:
+    if db_user is None:
         return None
 
-    db_user.role = role
+    if user.username is not None:
+        db_user.username = user.username
+
+    if user.email is not None:
+        db_user.email = user.email
+
+    if user.password is not None:
+        db_user.password_hash = hash_password(user.password)
 
     db.commit()
     db.refresh(db_user)
 
     return db_user
+
+
+def delete_user(
+    db: Session,
+    user_id: int,
+):
+    db_user = get_user(db, user_id)
+
+    if db_user is None:
+        return None
+
+    db.delete(db_user)
+    db.commit()
+
+    return db_user
+
+
+def update_user_role(
+    db: Session,
+    user_id: int,
+    role_update: UserRoleUpdate,
+):
+    db_user = get_user(db, user_id)
+
+    if db_user is None:
+        return None
+
+    db_user.role = role_update.role
+
+    db.commit()
+    db.refresh(db_user)
+
+    return db_user
+
+
+def count_admin_users(db: Session) -> int:
+    return (
+        db.query(User)
+        .filter(User.role == "admin")
+        .count()
+    )
