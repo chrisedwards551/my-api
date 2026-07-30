@@ -1,5 +1,9 @@
 from fastapi import FastAPI, Request
 
+# Phase 15.9 — CORS Configuration
+from fastapi.middleware.cors import CORSMiddleware
+
+
 from app.routers import users
 from app.routers import auth
 from app.routers import admin
@@ -9,6 +13,22 @@ from app.routers import permissions
 app = FastAPI(
     title="My API",
     version="1.0.0"
+)
+
+
+# Phase 15.9 — CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=[
+        "*"
+    ],
+    allow_headers=[
+        "*"
+    ],
 )
 
 
