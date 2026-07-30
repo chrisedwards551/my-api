@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 
 from app.auth.dependencies import get_current_user
+from app.auth.permissions import require_permission
 
 from app.crud.user import (
     create_user,
@@ -39,21 +40,27 @@ def create_new_user(
     return create_user(db, user)
 
 
+# -----------------------------------
+# Phase 15.8 Permission Authorization
+# users.read permission required
+# -----------------------------------
+
 @router.get("/", response_model=list[UserResponse])
 def read_users(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        require_permission("users.read")
+    )
 ):
-
-    # Only admins can view all users
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required."
-        )
 
     return get_users(db)
 
+
+# -----------------------------------
+# View single user
+# User can view themselves
+# Admin can view anyone
+# -----------------------------------
 
 @router.get("/{user_id}", response_model=UserResponse)
 def read_user(
@@ -85,14 +92,20 @@ def read_user(
     return user
 
 
+# -----------------------------------
+# Update user information
+# -----------------------------------
+
 @router.put("/{user_id}", response_model=UserResponse)
 def update_existing_user(
     user_id: int,
     user: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        require_permission("users.update")
+    )
 ):
-
+    
     if (
         current_user.id != user_id
         and current_user.role != "admin"
@@ -117,37 +130,37 @@ def update_existing_user(
     return updated_user
 
 
-# Phase 15.7 — User Role Management
+# -----------------------------------
+# Phase 15.7 Role Management
+# -----------------------------------
+
 @router.patch("/{user_id}/role", response_model=UserResponse)
 def update_user_role_endpoint(
     user_id: int,
     role_update: UserRoleUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        require_permission("users.manage_roles")
+    )
 ):
 
-    # Only admins can change roles
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required."
-        )
 
     target_user = get_user(
         db,
         user_id
     )
 
+
     if target_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="User not found."
         )
 
-    # Prevent an admin from removing their own admin role
+
+    # Prevent removing your own admin access
     if (
         current_user.id == user_id
-        and current_user.role == "admin"
         and role_update.role != "admin"
     ):
         raise HTTPException(
@@ -155,7 +168,8 @@ def update_user_role_endpoint(
             detail="Cannot remove your own admin privileges."
         )
 
-    # Prevent removing the last remaining admin
+
+    # Prevent deleting the last admin
     if (
         target_user.role == "admin"
         and role_update.role != "admin"
@@ -166,20 +180,26 @@ def update_user_role_endpoint(
             detail="Cannot remove the last admin account."
         )
 
-    updated_user = update_user_role(
+
+    return update_user_role(
         db,
         user_id,
         role_update
     )
 
-    return updated_user
 
+
+# -----------------------------------
+# Delete user
+# -----------------------------------
 
 @router.delete("/{user_id}", response_model=UserResponse)
 def delete_existing_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(
+        require_permission("users.delete")
+    )
 ):
 
     if (
@@ -191,15 +211,18 @@ def delete_existing_user(
             detail="You do not have permission to delete this user."
         )
 
+
     deleted_user = delete_user(
         db,
         user_id
     )
 
+
     if deleted_user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="User not found."
         )
+
 
     return deleted_user

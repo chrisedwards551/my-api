@@ -119,3 +119,37 @@ def remove_permission_from_role(
         db.commit()
 
     return role_permission
+
+
+# -------------------------
+# Permission Verification
+# -------------------------
+
+def has_permission(
+    db: Session,
+    role: str,
+    permission_name: str
+):
+
+    permission = (
+        db.query(Permission)
+        .filter(
+            Permission.name == permission_name
+        )
+        .first()
+    )
+
+    if permission is None:
+        return False
+
+
+    role_permission = (
+        db.query(RolePermission)
+        .filter(
+            RolePermission.role == role,
+            RolePermission.permission_id == permission.id
+        )
+        .first()
+    )
+
+    return role_permission is not None
