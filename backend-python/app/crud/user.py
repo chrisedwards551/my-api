@@ -4,9 +4,13 @@ from app.models.users import User
 from app.schemas.user import UserCreate, UserUpdate, UserRoleUpdate
 
 from app.auth.security import hash_password
+from app.auth.password_validation import validate_password
 
 
 def create_user(db: Session, user: UserCreate):
+
+    validate_password(user.password)
+
     hashed_password = hash_password(user.password)
 
     db_user = User(
@@ -35,6 +39,9 @@ def get_user(db: Session, user_id: int):
     )
 
 
+# -------------------------
+# Authentication helper
+# -------------------------
 def get_user_by_email(
     db: Session,
     email: str,
@@ -63,7 +70,12 @@ def update_user(
         db_user.email = user.email
 
     if user.password is not None:
-        db_user.password_hash = hash_password(user.password)
+
+        validate_password(user.password)
+
+        db_user.password_hash = hash_password(
+            user.password
+        )
 
     db.commit()
     db.refresh(db_user)
