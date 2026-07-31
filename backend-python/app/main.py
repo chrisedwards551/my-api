@@ -78,3 +78,13 @@ def root():
     return {
         "message": "API is running"
     }
+
+
+# Phase 15.13 — Production Environment Hardening
+# Health check endpoint for monitoring/deployment tools
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "service": "python-api"
+    }

@@ -14,6 +14,17 @@ app.get('/', (req, res) => {
     res.send('Hello from your Ubuntu VM API!');
 });
 
+
+// Phase 15.13 — Production Environment Hardening
+// Health check endpoint for monitoring/deployment tools
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        service: 'node-api'
+    });
+});
+
+
 app.get('/db-test', async (req, res) => {
     try {
         const result = await pool.query('SELECT NOW()');
@@ -32,6 +43,7 @@ app.get('/db-test', async (req, res) => {
         });
     }
 });
+
 
 app.listen(3000, () => {
     console.log('Server running on port 3000');
