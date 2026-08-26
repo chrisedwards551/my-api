@@ -17,7 +17,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify repository
+      - name: Inspect runner
         run: |
           echo "GitHub Actions is working"
           echo "Repository checkout successful"
+          echo "Operating system:"
+          uname -a
+          echo "Current user:"
+          whoami
+          echo "Current directory:"
+          pwd
+          echo "Repository contents:"
+          ls -la
