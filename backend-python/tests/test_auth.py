@@ -5,7 +5,7 @@ def test_login_success(client):
         json={
             "username": "testuser",
             "email": "test@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
     )
 
@@ -14,7 +14,7 @@ def test_login_success(client):
         "/auth/login",
         json={
             "email": "test@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
     )
 
@@ -38,7 +38,7 @@ def test_login_wrong_password(client):
         json={
             "username": "testuser",
             "email": "test@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
     )
 
@@ -47,7 +47,7 @@ def test_login_wrong_password(client):
         "/auth/login",
         json={
             "email": "test@example.com",
-            "password": "wrongpassword"
+            "password": "Wrongpassword123"
         }
     )
 
@@ -62,12 +62,13 @@ def test_login_unknown_user(client):
         "/auth/login",
         json={
             "email": "missing@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
     )
 
 
     assert response.status_code == 401
+
 
    
 def test_get_current_user(client):
@@ -77,7 +78,7 @@ def test_get_current_user(client):
         json={
             "username": "testuser",
             "email": "test@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
     )
 
@@ -86,7 +87,7 @@ def test_get_current_user(client):
         "/auth/login",
         json={
             "email": "test@example.com",
-            "password": "password123"
+            "password": "Password123"
         }
     )
 
@@ -110,4 +111,4 @@ def test_get_current_user(client):
 
     assert data["email"] == "test@example.com"
 
-    assert data["username"] == "testuser" 
+    assert data["username"] == "testuser"
