@@ -4,5 +4,5 @@ def test_root(client):
     assert response.status_code == 200
 
     assert response.json() == {
-        "message": "CI failure test"
+        "message": "API is running"
     }
