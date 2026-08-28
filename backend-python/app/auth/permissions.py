@@ -1,12 +1,9 @@
+from app.auth.dependencies import get_current_user
+from app.crud.permission import has_permission
+from app.database import get_db
+from app.models.users import User
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
-from app.auth.dependencies import get_current_user
-from app.database import get_db
-
-from app.models.users import User
-
-from app.crud.permission import has_permission
 
 
 # Existing RBAC check

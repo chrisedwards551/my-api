@@ -1,6 +1,6 @@
 from app.crud.permission import (
-    create_permission,
     assign_permission_to_role,
+    create_permission,
 )
 
 

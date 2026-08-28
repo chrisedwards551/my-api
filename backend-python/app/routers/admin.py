@@ -1,7 +1,5 @@
-from fastapi import APIRouter, Depends
-
 from app.auth.permissions import require_role
-
+from fastapi import APIRouter, Depends
 
 router = APIRouter(
     prefix="/admin",

@@ -1,14 +1,8 @@
+from app.routers import admin, auth, permissions, users
 from fastapi import FastAPI, Request
 
 # Phase 15.9 — CORS Configuration
 from fastapi.middleware.cors import CORSMiddleware
-
-
-from app.routers import users
-from app.routers import auth
-from app.routers import admin
-from app.routers import permissions
-
 
 app = FastAPI(
     title="My API",

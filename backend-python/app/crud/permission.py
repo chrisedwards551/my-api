@@ -1,10 +1,5 @@
+from app.models.permissions import Permission, RolePermission
 from sqlalchemy.orm import Session
-
-from app.models.permissions import (
-    Permission,
-    RolePermission
-)
-
 
 # -------------------------
 # Permission CRUD

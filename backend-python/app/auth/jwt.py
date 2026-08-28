@@ -1,13 +1,8 @@
 from datetime import datetime, timedelta, timezone
 
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from jose import jwt
-from jose.exceptions import JWTError, ExpiredSignatureError
-
-from app.config import (
-    SECRET_KEY,
-    ALGORITHM,
-    ACCESS_TOKEN_EXPIRE_MINUTES
-)
+from jose.exceptions import ExpiredSignatureError, JWTError
 
 
 def create_access_token(data: dict):

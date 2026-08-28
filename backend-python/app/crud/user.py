@@ -1,10 +1,8 @@
-from sqlalchemy.orm import Session
-
-from app.models.users import User
-from app.schemas.user import UserCreate, UserUpdate, UserRoleUpdate
-
-from app.auth.security import hash_password
 from app.auth.password_validation import validate_password
+from app.auth.security import hash_password
+from app.models.users import User
+from app.schemas.user import UserCreate, UserRoleUpdate, UserUpdate
+from sqlalchemy.orm import Session
 
 
 def create_user(db: Session, user: UserCreate):

@@ -5,17 +5,16 @@ Revises: e7532d872e0d
 Create Date: 2026-07-28 16:08:53.156641
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = 'cf443ede7daf'
-down_revision: Union[str, Sequence[str], None] = 'e7532d872e0d'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = 'e7532d872e0d'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -28,7 +27,12 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
-    op.create_index(op.f('ix_permissions_id'), 'permissions', ['id'], unique=False)
+    op.create_index(
+    op.f('ix_role_permissions_id'),
+    'role_permissions',
+    ['id'],
+    unique=False,
+)
     op.create_table('role_permissions',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('role', sa.String(), nullable=False),
@@ -36,7 +40,12 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['permission_id'], ['permissions.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_role_permissions_id'), 'role_permissions', ['id'], unique=False)
+    op.create_index(
+    op.f('ix_role_permissions_id'),
+    'role_permissions',
+    ['id'],
+    unique=False,
+)
     # ### end Alembic commands ###
 
 

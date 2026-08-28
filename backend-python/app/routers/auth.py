@@ -1,38 +1,18 @@
 from datetime import datetime, timedelta, timezone
 
+from app.auth.dependencies import get_current_user
+from app.auth.jwt import create_access_token, create_refresh_token, decode_token
+from app.auth.security import verify_password
+from app.crud.refresh_token import create_refresh_token as save_refresh_token
+from app.crud.refresh_token import get_refresh_token, revoke_refresh_token
+from app.crud.user import get_user_by_email
+from app.database import get_db
+from app.models.users import User
+from app.schemas.auth import LoginRequest, RefreshRequest, TokenResponse
+from app.schemas.errors import ErrorResponse
+from app.schemas.user import UserResponse
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from app.database import get_db
-
-from app.crud.user import get_user_by_email
-from app.crud.refresh_token import (
-    create_refresh_token as save_refresh_token,
-    get_refresh_token,
-    revoke_refresh_token
-)
-
-from app.schemas.auth import (
-    LoginRequest,
-    TokenResponse,
-    RefreshRequest
-)
-
-from app.schemas.user import UserResponse
-from app.schemas.errors import ErrorResponse
-
-from app.models.users import User
-
-from app.auth.security import verify_password
-
-from app.auth.jwt import (
-    create_access_token,
-    create_refresh_token,
-    decode_token
-)
-
-from app.auth.dependencies import get_current_user
-
 
 router = APIRouter(
     prefix="/auth",

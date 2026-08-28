@@ -1,30 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-
-from app.database import get_db
-
 from app.auth.dependencies import get_current_user
 from app.auth.permissions import require_permission
-
 from app.crud.user import (
-    create_user,
-    get_users,
-    get_user,
-    update_user,
-    delete_user,
-    update_user_role,
     count_admin_users,
+    create_user,
+    delete_user,
+    get_user,
+    get_users,
+    update_user,
+    update_user_role,
 )
-
+from app.database import get_db
+from app.models.users import User
 from app.schemas.user import (
     UserCreate,
     UserResponse,
-    UserUpdate,
     UserRoleUpdate,
+    UserUpdate,
 )
-
-from app.models.users import User
-
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/users",
