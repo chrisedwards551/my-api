@@ -7,6 +7,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY index.js ./
+COPY app.js ./
 COPY src ./src
 
 EXPOSE 3000
