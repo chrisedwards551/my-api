@@ -122,3 +122,14 @@ jobs:
       - name: Build Python Docker image
         run: |
           docker build -t my-api-python:ci ./backend-python
+
+  docker-build-node:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Node.js Docker image
+        run: |
+          docker build -t my-api-node:ci ./backend-node
