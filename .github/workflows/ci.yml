@@ -145,6 +145,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Node.js Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/my-api-node:latest ./backend-node
