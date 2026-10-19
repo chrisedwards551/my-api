@@ -10,6 +10,18 @@
 -- ============================================================
 
 BEGIN;
+-- Refuse to seed if any target table already contains data.
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM sql_mastery.users)
+       OR EXISTS (SELECT 1 FROM sql_mastery.tickets)
+       OR EXISTS (SELECT 1 FROM sql_mastery.audit_records)
+    THEN
+        RAISE EXCEPTION
+            'Seed aborted: sql_mastery tables must be empty.';
+    END IF;
+END;
+$$;
 
 -- 1. Create the sample users.
 INSERT INTO sql_mastery.users (username, email)
